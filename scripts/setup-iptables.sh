@@ -15,16 +15,20 @@ iptables -t filter -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j REJECT
 iptables -t filter -A INPUT -p tcp -m conntrack --ctstate NEW ! --tcp-flags FIN,SYN,RST,ACK SYN -j REJECT
 
 # ACCEPT SSH
-iptables -t filter -A INPUT -s 192.168.0.0/24 -p tcp --dport 22 -j ACCEPT
+iptables -t filter -A INPUT -i eth0 -s 192.168.0.0/24 -p tcp --dport 22 -j ACCEPT
 
 # ACCEPT ping request
-iptables -t filter -A INPUT -s 192.168.0.0/24 -p icmp --icmp-type echo-request -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
+iptables -t filter -A INPUT -i eth0 -s 192.168.0.0/24 -p icmp --icmp-type echo-request -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
 
 # ACCEPT DNS queries
-iptables -t filter -A INPUT -s 192.168.0.0/24 -p udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+iptables -t filter -A INPUT -i eth0 -s 192.168.0.0/24 -p udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+
+# ACCEPT HTTP/HTTPS
+iptables -t filter -A INPUT -i eth0 -s 192.168.0.0/24 -p udp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
+iptables -t filter -A INPUT -i eth0 -s 192.168.0.0/24 -p udp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
 
 # ACCEPT NTP
-iptables -t filter -A INPUT -s 192.168.0.0/24 -p udp --dport 123 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+iptables -t filter -A INPUT -i eth0 -s 192.168.0.0/24 -p udp --dport 123 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 
 iptables -t filter -A INPUT -j REJECT
 iptables -t filter -P INPUT DROP
